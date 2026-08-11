@@ -4,14 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="NBA Analytics | Historical & Modern NBA Statistical Dashboard by TAP">
+<link rel="canonical" href="https://thalesandradepereira.github.io/nba-analytics/">
 <title>NBA Analytics | by TAP</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="shooting-v2.css?v=4">
 <link rel="stylesheet" href="period-multiselect.css?v=1">
+<link rel="stylesheet" href="analytics.css?v=1">
 <script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script defer src="app.js"></script>
 <script defer src="shooting-v2.js?v=4"></script>
 <script defer src="period-multiselect.js?v=1"></script>
+<script defer src="analytics-config.js?v=1"></script>
+<script defer src="analytics.js?v=1"></script>
 </head>
 <body>
 <header class="hero">
@@ -47,7 +51,14 @@
 
 <div class="global-controls">
   <label><span data-i18n="period">Período</span><select id="eraGlobal"></select></label>
-  <div class="data-state" id="dataState"><span class="pulse"></span><span data-i18n="loading">Carregando dados…</span></div>
+  <div class="global-status">
+    <div class="analytics-reach" id="analyticsReach" hidden aria-live="polite">
+      <span class="analytics-eye" aria-hidden="true"></span>
+      <span class="analytics-label" id="analyticsLabel">Acessos</span>
+      <span class="analytics-value" id="analyticsValue">…</span>
+    </div>
+    <div class="data-state" id="dataState"><span class="pulse"></span><span data-i18n="loading">Carregando dados…</span></div>
+  </div>
 </div>
 
 <nav class="tabs" id="tabs">
