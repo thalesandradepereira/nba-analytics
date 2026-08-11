@@ -14,3 +14,14 @@ window.NBA_ANALYTICS_CONFIG = Object.freeze({
   publicCounter: true,
   productionHosts: ['thalesandradepereira.github.io']
 });
+
+/* Load the UI QA/glossary enhancement after app + multi-period scripts.
+   The guard prevents duplicate injection. */
+(() => {
+  if(document.querySelector('script[data-nba-dashboard-qa-v2]')) return;
+  const script=document.createElement('script');
+  script.src='dashboard-qa-v2.js?v=2';
+  script.async=false;
+  script.dataset.nbaDashboardQaV2='1';
+  document.head.appendChild(script);
+})();
