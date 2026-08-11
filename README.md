@@ -297,7 +297,7 @@ As indisponibilidades históricas esperadas são registradas como warnings, não
 
 O workflow está em:
 
-[` .github/workflows/update-nba-data.yml`](.github/workflows/update-nba-data.yml)
+[`.github/workflows/update-nba-data.yml`](.github/workflows/update-nba-data.yml)
 
 ### Agenda
 
