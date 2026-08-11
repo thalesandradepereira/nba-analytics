@@ -1,5 +1,5 @@
 /* NBA Analytics — GoatCounter integration.
-   The public GoatCounter site code is intentionally stored separately in analytics-config.js.
+   The public GoatCounter site code is stored in analytics-config.js.
    No API token or secret is required in the browser. */
 (function(){
   'use strict';
@@ -13,8 +13,8 @@
   function setLanguage(){
     if(label) label.textContent = isEnglish() ? 'Site views' : 'Acessos';
     if(reach) reach.title = isEnglish()
-      ? 'Public site-view counter. GoatCounter may cache this value for up to four hours.'
-      : 'Contador público de acessos. O GoatCounter pode manter este valor em cache por até quatro horas.';
+      ? 'Public page-view counter. GoatCounter may cache this value for a few hours.'
+      : 'Contador público de visualizações. O GoatCounter pode manter este valor em cache por algumas horas.';
   }
 
   function validCode(code){ return /^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/i.test(code || ''); }
@@ -23,13 +23,19 @@
     return hosts.length === 0 || hosts.includes(location.hostname);
   }
 
-  async function loadPublicCounter(code){
+  async function loadPublicCounter(){
     if(!cfg.publicCounter || !reach || !value) return;
     reach.hidden = false;
     reach.classList.add('is-loading');
     value.textContent = '…';
+
     try{
-      const endpoint = `https://${code}.goatcounter.com/counter/TOTAL.json`;
+      if(!window.goatcounter || !window.goatcounter.get_data)
+        throw new Error('goatcounter.get_data unavailable');
+
+      const data = window.goatcounter.get_data();
+      const path = data && data.p ? data.p : location.pathname;
+      const endpoint = `https://${cfg.goatcounterCode}.goatcounter.com/counter/${encodeURIComponent(path)}.json`;
       const response = await fetch(endpoint, {cache:'no-store', mode:'cors'});
       if(!response.ok) throw new Error(`counter HTTP ${response.status}`);
       const payload = await response.json();
@@ -48,11 +54,15 @@
     if(document.querySelector('script[data-nba-goatcounter]')) return;
     const script = document.createElement('script');
     script.async = true;
-    script.src = 'https://gc.zgo.at/count.v5.js';
+    script.src = 'https://gc.zgo.at/count.js';
     script.dataset.nbaGoatcounter = '1';
     script.dataset.goatcounter = `https://${code}.goatcounter.com/count`;
     script.dataset.goatcounterSettings = JSON.stringify({no_events:true});
-    script.addEventListener('load', ()=>loadPublicCounter(code));
+    script.addEventListener('load', ()=>{
+      // The tracker registers the pageview on load. Load the public count shortly
+      // afterwards so the newly registered view has time to propagate.
+      setTimeout(loadPublicCounter, 800);
+    });
     script.addEventListener('error', ()=>{
       if(reach){ reach.hidden=false; reach.classList.add('is-error'); }
       if(value) value.textContent='—';
