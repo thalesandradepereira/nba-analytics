@@ -35,8 +35,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Download, validate and rebuild NBA data
+      - name: Download and rebuild NBA data
         run: python scripts/update_data.py
+
+      - name: Validate every dashboard filter and metric family
+        run: python scripts/validate_dashboard.py
 
       - name: Commit refreshed data when changed
         shell: bash
