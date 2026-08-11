@@ -8,19 +8,40 @@
   const reach = document.getElementById('analyticsReach');
   const value = document.getElementById('analyticsValue');
   const label = document.getElementById('analyticsLabel');
+  let pageviewSent = false;
 
   function isEnglish(){ return document.documentElement.lang === 'en-US'; }
   function setLanguage(){
-    if(label) label.textContent = isEnglish() ? 'Site views' : 'Acessos';
+    if(label) label.textContent = isEnglish() ? 'Site visits' : 'Acessos';
     if(reach) reach.title = isEnglish()
-      ? 'Public page-view counter. GoatCounter may cache this value for a few hours.'
-      : 'Contador público de visualizações. O GoatCounter pode manter este valor em cache por algumas horas.';
+      ? 'Public site-visit counter. GoatCounter may cache this value for a few hours.'
+      : 'Contador público de acessos. O GoatCounter pode manter este valor em cache por algumas horas.';
   }
 
   function validCode(code){ return /^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/i.test(code || ''); }
   function productionAllowed(){
     const hosts = Array.isArray(cfg.productionHosts) ? cfg.productionHosts : [];
     return hosts.length === 0 || hosts.includes(location.hostname);
+  }
+
+  function trackedPath(){
+    return location.pathname || '/';
+  }
+
+  function sendPageview(){
+    if(pageviewSent) return;
+    if(!window.goatcounter || typeof window.goatcounter.count !== 'function'){
+      console.warn('NBA Analytics: goatcounter.count() unavailable after count.js load.');
+      return;
+    }
+
+    pageviewSent = true;
+    window.goatcounter.count({
+      path: trackedPath(),
+      title: document.title,
+      referrer: document.referrer || undefined
+    });
+    console.info('NBA Analytics: GoatCounter visit sent for', trackedPath());
   }
 
   async function loadPublicCounter(){
@@ -30,11 +51,7 @@
     value.textContent = '…';
 
     try{
-      if(!window.goatcounter || !window.goatcounter.get_data)
-        throw new Error('goatcounter.get_data unavailable');
-
-      const data = window.goatcounter.get_data();
-      const path = data && data.p ? data.p : location.pathname;
+      const path = trackedPath();
       const endpoint = `https://${cfg.goatcounterCode}.goatcounter.com/counter/${encodeURIComponent(path)}.json`;
       const response = await fetch(endpoint, {cache:'no-store', mode:'cors'});
       if(!response.ok) throw new Error(`counter HTTP ${response.status}`);
@@ -52,22 +69,34 @@
 
   function loadTracker(code){
     if(document.querySelector('script[data-nba-goatcounter]')) return;
+
     const script = document.createElement('script');
     script.async = true;
     script.src = 'https://gc.zgo.at/count.js';
     script.dataset.nbaGoatcounter = '1';
     script.dataset.goatcounter = `https://${code}.goatcounter.com/count`;
-    script.dataset.goatcounterSettings = JSON.stringify({no_events:true});
-    script.addEventListener('load', ()=>{
-      // The tracker registers the pageview on load. Load the public count shortly
-      // afterwards so the newly registered view has time to propagate.
-      setTimeout(loadPublicCounter, 800);
+
+    // We explicitly send the pageview in the load handler below. This avoids
+    // relying on the automatic onload path when count.js itself was inserted
+    // dynamically by the dashboard.
+    script.dataset.goatcounterSettings = JSON.stringify({
+      no_onload: true,
+      no_events: true
     });
+
+    script.addEventListener('load', ()=>{
+      sendPageview();
+      // GoatCounter's public visitor-counter responses are cached, so a newly
+      // recorded visit may not be reflected immediately in this number.
+      setTimeout(loadPublicCounter, 1200);
+    });
+
     script.addEventListener('error', ()=>{
       if(reach){ reach.hidden=false; reach.classList.add('is-error'); }
       if(value) value.textContent='—';
-      console.warn('NBA Analytics: GoatCounter tracking script was blocked or unavailable.');
+      console.warn('NBA Analytics: GoatCounter count.js was blocked or unavailable. Check browser/ad-blocker settings.');
     });
+
     document.head.appendChild(script);
   }
 
