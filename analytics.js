@@ -12,10 +12,10 @@
 
   function isEnglish(){ return document.documentElement.lang === 'en-US'; }
   function setLanguage(){
-    if(label) label.textContent = isEnglish() ? 'Site visits' : 'Acessos';
+    if(label) label.textContent = isEnglish() ? 'Visits' : 'Visitas';
     if(reach) reach.title = isEnglish()
-      ? 'Public site-visit counter. GoatCounter may cache this value for a few hours.'
-      : 'Contador público de acessos. O GoatCounter pode manter este valor em cache por algumas horas.';
+      ? 'Total public site visits recorded by GoatCounter. The public counter may be cached for a few hours.'
+      : 'Total de visitas públicas registradas pelo GoatCounter. O contador público pode ficar em cache por algumas horas.';
   }
 
   function validCode(code){ return /^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/i.test(code || ''); }
@@ -51,8 +51,10 @@
     value.textContent = '…';
 
     try{
-      const path = trackedPath();
-      const endpoint = `https://${cfg.goatcounterCode}.goatcounter.com/counter/${encodeURIComponent(path)}.json`;
+      // TOTAL is intentional: the dashboard displays the total number of
+      // visits recorded for the whole NBA Analytics site, rather than a
+      // potentially fragile URL-path-specific counter.
+      const endpoint = `https://${cfg.goatcounterCode}.goatcounter.com/counter/TOTAL.json`;
       const response = await fetch(endpoint, {cache:'no-store', mode:'cors'});
       if(!response.ok) throw new Error(`counter HTTP ${response.status}`);
       const payload = await response.json();
@@ -76,9 +78,6 @@
     script.dataset.nbaGoatcounter = '1';
     script.dataset.goatcounter = `https://${code}.goatcounter.com/count`;
 
-    // We explicitly send the pageview in the load handler below. This avoids
-    // relying on the automatic onload path when count.js itself was inserted
-    // dynamically by the dashboard.
     script.dataset.goatcounterSettings = JSON.stringify({
       no_onload: true,
       no_events: true
@@ -86,8 +85,6 @@
 
     script.addEventListener('load', ()=>{
       sendPageview();
-      // GoatCounter's public visitor-counter responses are cached, so a newly
-      // recorded visit may not be reflected immediately in this number.
       setTimeout(loadPublicCounter, 1200);
     });
 
