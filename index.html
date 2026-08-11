@@ -78,9 +78,49 @@
   <div class="card"><label><span data-i18n="player">Jogador</span><select id="playerSelect"></select></label><div id="playerDetailContent"></div></div>
 </section>
 
-<section id="shooting" class="tab">
-  <div class="section-title"><div><h2 data-i18n="shooting_zones">Arremessos & Zonas</h2><p data-i18n="shot_note">Shot location e dunks dependem da cobertura histórica da fonte.</p></div><span class="pill warn">1996-97+</span></div>
-  <div class="grid"><div class="card span8"><h3 data-i18n="shot_distribution">Distribuição por distância</h3><div id="zoneShareChart" class="chart"></div></div><div class="card span4"><h3>Corner 3</h3><div id="cornerChart" class="chart"></div></div><div class="card span6"><h3 data-i18n="dunk_trend">Enterradas por equipe/jogo</h3><div id="dunkTrend" class="chart"></div></div><div class="card span6"><h3 data-i18n="dunk_leaders">Líderes em enterradas</h3><div id="dunkLeaders" class="tablewrap"></div></div></div>
+<section id="shooting" class="tab shooting-tab">
+  <div class="section-title">
+    <div>
+      <h2 data-i18n="shooting_zones">Arremessos & Zonas</h2>
+      <p data-i18n="shot_note">Shot location e dunks dependem da cobertura histórica da fonte.</p>
+    </div>
+    <span class="pill warn">1996-97+</span>
+  </div>
+
+  <div id="shootingKpis" class="shooting-kpis"></div>
+
+  <div class="grid shooting-grid mt">
+    <div class="card span12 shooting-primary">
+      <div class="shooting-card-head">
+        <div>
+          <h3 data-i18n="shot_distribution">Distribuição por distância</h3>
+          <p class="note" data-i18n="shot_distribution_note">Participação de cada zona no total de tentativas de arremesso (FGA) dentro do período selecionado.</p>
+        </div>
+      </div>
+      <div id="zoneShareChart" class="chart shooting-main-chart"></div>
+    </div>
+
+    <div class="card span6 shooting-secondary">
+      <div class="shooting-card-head">
+        <div><h3>Corner 3</h3><p class="note" data-i18n="corner_note">Volume por equipe/jogo e eficiência da bola de 3 da zona morta.</p></div>
+      </div>
+      <div id="cornerChart" class="chart shooting-secondary-chart"></div>
+    </div>
+
+    <div class="card span6 shooting-secondary">
+      <div class="shooting-card-head">
+        <div><h3 data-i18n="dunk_trend">Enterradas por equipe/jogo</h3><p class="note" data-i18n="dunk_note">Evolução do volume médio de enterradas na liga durante o período selecionado.</p></div>
+      </div>
+      <div id="dunkTrend" class="chart shooting-secondary-chart"></div>
+    </div>
+
+    <div class="card span12 shooting-leaders-card">
+      <div class="shooting-card-head">
+        <div><h3 data-i18n="dunk_leaders">Líderes em enterradas</h3><p class="note" data-i18n="dunk_leaders_note">Ranking acumulado do período selecionado; cobertura disponível a partir de 1996-97.</p></div>
+      </div>
+      <div id="dunkLeaders" class="tablewrap shooting-leaders"></div>
+    </div>
+  </div>
 </section>
 
 <section id="fouls" class="tab">
