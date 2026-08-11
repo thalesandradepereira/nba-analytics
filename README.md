@@ -1,14 +1,16 @@
 <div align="center">
 
-<img src="assets/tap-logo.jpg" alt="TAP logo" width="180">
+<img src="assets/tap-logo.jpg" alt="TAP logo" width="190">
 
 # NBA Analytics | by TAP
 
-**Historical & Modern NBA Statistical Intelligence — 1988 → Today**
+### Historical & Modern NBA Statistical Intelligence — 1988 → Today
 
-Dashboard interativo para análise histórica da NBA, comparação entre eras, rankings de jogadores e equipes, arremessos por zona, faltas/PBP e estudo de matchup entre gerações — com foco em **rastreabilidade estatística, ausência de valores inventados e atualização automatizada**.
+**Dashboard interativo para análise histórica da NBA, comparação entre eras, rankings de jogadores e equipes, shooting zones, faltas/PBP e análise de matchups entre gerações.**
 
-[**🌐 Abrir Dashboard**](https://thalesandradepereira.github.io/nba-analytics/) · [**⚙️ GitHub Actions**](https://github.com/thalesandradepereira/nba-analytics/actions) · [**📊 QA Report**](data/qa_report.json) · [**🕒 Data Metadata**](data/meta.json)
+O projeto foi construído com foco em **integridade estatística, rastreabilidade, automação, qualidade de dados e visualização executiva**.
+
+[**🌐 Live Dashboard**](https://thalesandradepereira.github.io/nba-analytics/) · [**⚙️ GitHub Actions**](https://github.com/thalesandradepereira/nba-analytics/actions) · [**✅ QA Report**](data/qa_report.json) · [**🕒 Data Metadata**](data/meta.json)
 
 [![Refresh NBA Analytics data](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/update-nba-data.yml/badge.svg)](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/update-nba-data.yml)
 
@@ -16,338 +18,478 @@ Dashboard interativo para análise histórica da NBA, comparação entre eras, r
 
 ---
 
-## Visão geral
+## 1. Executive Overview
 
-O **NBA Analytics** é um projeto independente de análise estatística que consolida dados históricos e modernos da NBA em uma aplicação web estática hospedada pelo **GitHub Pages**.
+**NBA Analytics** é uma aplicação web independente voltada à análise quantitativa da NBA entre **1988-89 e a temporada mais recente disponível na fonte de dados**.
 
-O projeto foi desenhado com quatro princípios:
+O projeto combina engenharia de dados, estatística aplicada e visualização interativa para responder perguntas como:
 
-1. **Integridade estatística** — nenhuma lacuna histórica é preenchida com valor arbitrário.
-2. **Comparabilidade entre eras** — os recortes são explícitos e podem ser combinados sem esconder diferenças de cobertura.
-3. **Rastreabilidade** — dados de fonte, métricas derivadas, cobertura e limitações são documentados.
-4. **Automação** — o pipeline baixa, processa, valida e republica os dados automaticamente.
+- Como o estilo de jogo da NBA evoluiu ao longo das décadas?
+- Quais jogadores lideram diferentes métricas dentro de cada período?
+- Como volume, eficiência, faltas, spacing, arremessos de 3 e jogo interior mudaram ao longo do tempo?
+- Quais equipes tiveram os melhores picos estatísticos?
+- Como diferentes gerações se comparariam em um confronto hipotético sob regras atuais?
 
-A interface é bilíngue, com alternância instantânea entre **Português (Brasil)** e **English (United States)**.
+A aplicação é publicada por **GitHub Pages**, utiliza **Plotly.js** para visualização e possui um pipeline automatizado em **Python + GitHub Actions** para atualização, validação e republicação dos dados.
+
+### Princípios de engenharia do projeto
+
+1. **No fabricated data** — valores ausentes permanecem ausentes; não há preenchimento arbitrário.
+2. **Traceability by design** — fonte, cobertura, transformações e métricas derivadas são documentadas.
+3. **Era-aware analytics** — diferenças de cobertura histórica são tratadas explicitamente.
+4. **Reproducibility** — métricas derivadas são calculadas por regras determinísticas.
+5. **Automated QA** — o pipeline valida filtros, métricas, ranges e combinações de período antes da publicação.
+6. **Progressive enhancement** — falhas em analytics externos ou campos sem cobertura não impedem o funcionamento do dashboard.
 
 ---
 
-## Principais recursos
+## 2. Current Production Status
 
-| Área | O que o dashboard oferece |
+| Item | Status atual |
 |---|---|
-| **Visão Geral** | KPIs por período, evolução temporada a temporada e comparação entre eras |
-| **Top 30 Jogadores** | Rankings por VORP, WS, pontos, rebotes, assistências, 3P, FT, TS%, PER, BPM, dunks, faltas e outras métricas |
-| **Explorador de Jogador** | Perfil consolidado do atleta, com estatísticas tradicionais, avançadas e de shooting/PBP quando disponíveis |
-| **Arremessos & Zonas** | Distribuição por distância, Corner 3, volume de enterradas e líderes em dunks |
-| **Faltas & PBP** | PF, FTA, shooting fouls, offensive fouls, And-1 e categorias de contato |
-| **Equipes** | Ranking de temporadas por vitórias, Win%, SRS, Net Rating, ORtg, DRtg, Pace e outras métricas |
-| **Best Team Forever** | Estudo comparativo entre seleções históricas das três eras sob regras atuais |
-| **Acrônimos & Legendas** | Glossário das métricas e siglas utilizadas |
-| **PT-BR / EN-US** | Interface bilíngue com preferência salva no navegador |
-| **Multi-período** | Seleção de uma, duas ou todas as eras, com agregação cross-era |
+| **Publicação** | GitHub Pages |
+| **URL** | https://thalesandradepereira.github.io/nba-analytics/ |
+| **Snapshot de dados** | 2025-26 |
+| **Série histórica** | 1988-89 → 2025-26 |
+| **Último rebuild registrado** | 11/08/2026 UTC |
+| **QA programático** | PASS |
+| **Checks automáticos** | 441 |
+| **Combinações de período testadas** | 7 |
+| **Erros críticos no último QA** | 0 |
+| **Interface** | PT-BR / EN-US |
+| **Analytics de acesso** | GoatCounter |
+
+A referência operacional para a temporada e timestamp efetivamente publicados é [`data/meta.json`](data/meta.json). O resultado detalhado da validação está em [`data/qa_report.json`](data/qa_report.json).
 
 ---
 
-## Períodos analíticos
+## 3. Analytical Scope
 
-O dashboard organiza a série histórica em três blocos não sobrepostos:
+### Períodos principais
 
-- **1988-89 a 1999-00**
-- **2000-01 a 2009-10**
-- **2010-11 até a temporada mais recente disponível na fonte**
+O histórico é organizado em três blocos não sobrepostos:
 
-### Filtro multi-período
+- **1988-89 → 1999-00**
+- **2000-01 → 2009-10**
+- **2010-11 → temporada corrente disponível**
 
-O seletor global permite escolher:
+### Multi-period analysis
+
+O filtro global permite selecionar:
 
 - uma era;
 - qualquer combinação de duas eras;
-- **todos os períodos**.
+- todos os períodos simultaneamente.
 
-Isso gera **7 combinações possíveis de seleção**.
+Isso resulta em **7 combinações válidas de seleção**.
 
-Quando mais de uma era é selecionada:
+Quando mais de uma era é escolhida:
 
-- séries temporais permanecem separadas por período, evitando linhas artificiais entre intervalos não contíguos;
-- estatísticas acumulativas de um mesmo jogador são somadas entre os períodos selecionados;
-- médias por jogo e percentuais são recalculados a partir dos totais quando possível;
+- séries temporais permanecem visualmente separadas por era;
+- métricas acumulativas de jogadores são consolidadas entre os períodos;
+- médias por jogo são recalculadas a partir dos totais quando possível;
+- percentuais são derivados dos respectivos numeradores e denominadores quando disponíveis;
 - PER e BPM consolidados usam ponderação por minutos;
 - Corner 3% consolidado usa ponderação pelo volume estimado de tentativas de Corner 3;
 - rankings de equipes consideram todas as temporadas pertencentes às eras selecionadas.
 
-A seleção é persistida em `localStorage` e restaurada ao retornar ao dashboard.
+A seleção é persistida no navegador via `localStorage`.
 
 ---
 
-## Cobertura estatística
+## 4. Dashboard Modules
 
-### Jogadores
+| Módulo | Objetivo |
+|---|---|
+| **Visão Geral** | KPIs da liga, evolução temporada a temporada e comparação entre eras |
+| **Top 30 Jogadores** | Rankings por métricas tradicionais, avançadas, shooting, faltas e PBP |
+| **Explorador de Jogador** | Perfil consolidado por período, com estatísticas tradicionais e avançadas |
+| **Arremessos & Zonas** | Distribuição por distância, Corner 3, participação dos 3P, dunks e líderes |
+| **Faltas & PBP** | PF, FTA, shooting fouls, offensive fouls, And-1 e eventos de contato |
+| **Equipes** | Melhores temporadas por Win%, W, SRS, Net Rating, ORtg, DRtg, Pace e outras métricas |
+| **Best Team Forever** | Inferência de matchup entre seleções representativas das três eras |
+| **Metodologia & Fontes** | Regras de integridade, cobertura e origem dos dados |
+| **Acrônimos & Legendas** | Glossário técnico com significado, interpretação, fórmula e categoria das métricas |
 
-O pipeline trabalha, entre outras, com as seguintes famílias de métricas:
+### Interface
 
-**Tradicionais**
+- alternância instantânea entre **Português (Brasil)** e **English (United States)**;
+- layout responsivo;
+- filtros persistentes;
+- gráficos Plotly com escalas controladas;
+- fallback explícito para `N/D` / `N/A` quando não existe cobertura;
+- contador público de visitas integrado ao GoatCounter.
 
-`G`, `GS`, `MP`, `PTS`, `FG`, `FGA`, `3P`, `3PA`, `FT`, `FTA`, `ORB`, `DRB`, `TRB`, `AST`, `STL`, `BLK`, `TOV`, `PF`.
+---
 
-**Eficiência e avançadas**
+## 5. Statistical Coverage
 
-`FG%`, `3P%`, `FT%`, `eFG%`, `TS%`, `PER`, `USG%`, `OBPM`, `DBPM`, `BPM`, `VORP`, `WS`, `WS/48`.
+### Player metrics
 
-**Shooting / zonas**
+**Traditional / counting**
 
-- distância média do arremesso;
+`G`, `GS`, `MP`, `PTS`, `FG`, `FGA`, `3PM`, `3PA`, `FTM`, `FTA`, `ORB`, `DRB`, `TRB`, `AST`, `STL`, `BLK`, `TOV`, `PF`.
+
+**Per-game / efficiency**
+
+`PPG`, `RPG`, `APG`, `BPG`, `FG%`, `3P%`, `FT%`, `eFG%`, `TS%`.
+
+**Advanced**
+
+`PER`, `USG%`, `OWS`, `DWS`, `WS`, `WS/48`, `OBPM`, `DBPM`, `BPM`, `VORP`.
+
+**Shooting / location**
+
 - 0–3 ft;
 - 3–10 ft;
 - 10–16 ft;
 - 16 ft–3P;
-- participação dos arremessos de 3;
+- 3P share / `3PAr`;
 - Corner 3;
 - dunks.
 
-**Play-by-Play / eventos**
+**Play-by-Play / events**
 
 - shooting fouls committed/drawn;
 - offensive fouls committed/drawn;
 - And-1;
 - bad-pass turnovers;
 - lost-ball turnovers;
-- FGA blocked;
-- pontos gerados por assistências.
+- blocked FGA;
+- points generated by assists;
+- triple-doubles, quando disponíveis na base.
 
-### Equipes
+### Team metrics
 
-Entre as métricas disponíveis estão:
+Entre as métricas de equipes utilizadas no dashboard estão:
 
-`W`, `L`, `Win%`, `SRS`, `ORtg`, `DRtg`, `Net Rating`, `Pace`, `PTS/G`, `3PA/G`, `BLK/G` e demais totais/per-game processados pelo pipeline.
+`W`, `L`, `Win%`, `SRS`, `ORtg`, `DRtg`, `Net Rating`, `Pace`, `PTS/G`, `3PA/G`, `BLK/G` e demais estatísticas processadas pelo pipeline.
 
 ---
 
-## Integridade estatística
+## 6. Statistical Integrity & Derived Metrics
 
-Este projeto adota explicitamente a regra:
+A regra de integridade central do projeto é:
 
 > **Missing values remain null; no arbitrary imputation.**
 
 Na interface:
 
-- `N/D` = não disponível em Português;
-- `N/A` = not available em Inglês.
+- `N/D` = não disponível;
+- `N/A` = not available.
 
-### Dados de fonte × métricas derivadas
+Ausência de informação não é interpretada como zero.
 
-O dashboard diferencia conceitualmente:
-
-- **dados publicados pela fonte**, como totais tradicionais, VORP, WS, PER/BPM, dunks e eventos PBP;
-- **métricas derivadas**, calculadas de forma reproduzível a partir desses dados.
-
-Exemplos de cálculos derivados:
+### Exemplos de métricas derivadas
 
 ```text
-PPG = PTS / G
-RPG = TRB / G
-APG = AST / G
-3P% = 3P / 3PA
-FT% = FT / FTA
+PPG   = PTS / G
+RPG   = TRB / G
+APG   = AST / G
+BPG   = BLK / G
+3P%   = 3PM / 3PA
+FT%   = FTM / FTA
 WS/48 = WS × 48 / MP
-TS% = PTS / [2 × (FGA + 0,44 × FTA)]
+TS%   = PTS / [2 × (FGA + 0.44 × FTA)]
 ```
 
-Para algumas análises de localização de arremesso, quantidades de tentativas por zona são estimadas de forma transparente a partir de **share publicado × tentativas exatas**. Essas estimativas não são apresentadas como contagens oficiais exatas.
+### Aggregation policy
+
+Para análises cross-era:
+
+- contagens são somadas;
+- médias por jogo são recalculadas a partir dos totais;
+- PER/BPM são ponderados por minutos;
+- percentuais dependentes de tentativas são ponderados pelos respectivos volumes;
+- jogadores trocados são tratados utilizando linhas agregadas (`2TM`, `3TM`, etc.) quando disponíveis, evitando dupla contagem.
+
+### Shot-location estimates
+
+Quando uma quantidade absoluta não é fornecida diretamente, algumas tentativas por zona são derivadas de forma transparente por:
+
+```text
+published share × exact attempts
+```
+
+Esses valores são tratados como **métricas derivadas**, não como contagens oficiais publicadas.
 
 ---
 
-## Limitações históricas importantes
+## 7. Historical Coverage & Known Limitations
 
-Nem todas as estatísticas existem com a mesma cobertura desde 1988.
+Nem todas as estatísticas possuem cobertura homogênea desde 1988.
 
-- **Shot location**, dunks, Corner 3 e várias categorias de **Play-by-Play** ficam disponíveis principalmente a partir de **1996-97** na fonte utilizada.
-- A linha de 3 pontos da NBA foi temporariamente encurtada entre **1994-95 e 1996-97**, criando uma quebra histórica relevante para análises de volume e eficiência de 3 pontos.
-- Dados históricos de localização/tipo de arremesso dos anos 1990 possuem menor consistência do que as temporadas modernas.
-- O dashboard não extrapola esses campos para temporadas em que a fonte não os publica.
+### Shot location / dunks / Corner 3 / PBP
 
-Essas limitações são tratadas como parte do modelo de dados, não como erro a ser preenchido artificialmente.
+A cobertura detalhada utilizada no projeto começa, em geral, em **1996-97**. Por isso:
+
+- a primeira era possui cobertura parcial para essas famílias;
+- temporadas sem dado permanecem `null`;
+- o dashboard não extrapola informação para períodos anteriores.
+
+### Three-point line context
+
+A NBA utilizou uma linha de três temporariamente encurtada entre **1994-95 e 1996-97**. Essa mudança de regra é relevante para qualquer comparação histórica de volume ou eficiência de 3 pontos.
+
+### 1990s shot-location quality
+
+Dados de localização e tipo de arremesso da década de 1990 possuem menor consistência do que os registros modernos. O projeto mantém essa limitação explícita em vez de mascará-la por interpolação.
 
 ---
 
-## Best Team Forever
+## 8. Best Team Forever
 
-A aba **Best Team Forever** compara três seleções de era em um confronto hipotético sob regras atuais.
+A aba **Best Team Forever** compara seleções representativas das três eras em um confronto hipotético sob regras atuais.
 
-A análise combina:
+A análise considera, entre outros fatores:
 
-- pico estatístico individual dentro da era;
-- eficiência relativa;
+- pico estatístico individual;
+- eficiência absoluta e relativa à liga;
 - criação ofensiva;
-- spacing;
-- defesa interior e no perímetro;
+- spacing e volume de três;
+- defesa interior e perímetro;
 - switchability;
 - complementaridade de funções;
-- adaptação ao ambiente tático atual.
+- adaptação ao ambiente tático moderno.
 
-> O resultado dessa aba é uma **inferência analítica de matchup**. Não é uma estatística observada, uma simulação probabilística certificada ou uma afirmação de que determinado resultado teria necessariamente ocorrido.
+> **Importante:** o resultado é uma inferência analítica de matchup. Não é um resultado observado, uma previsão probabilística certificada ou uma afirmação determinística sobre um jogo que nunca ocorreu.
 
 ---
 
-## Arquitetura
+## 9. Data Architecture
 
 ```mermaid
 flowchart LR
-    A[Historical source datasets] --> B[Python data pipeline]
-    B --> C[Validation / QA]
-    C --> D[data/*.json]
-    D --> E[Vanilla JS + Plotly]
-    E --> F[GitHub Pages]
-    G[GitHub Actions] --> B
-    G --> C
-    G --> H[Automated commit]
-    H --> F
+    A[Historical source datasets] --> B[Python ETL / transformations]
+    B --> C[Derived metrics & era aggregation]
+    C --> D[Automated QA]
+    D --> E[data/*.json]
+    E --> F[Vanilla JS + Plotly]
+    F --> G[GitHub Pages]
+
+    H[GitHub Actions] --> B
+    H --> D
+    H --> I[Automated data commit]
+    I --> G
+
+    J[GoatCounter] --> F
 ```
 
-### Front-end
+### Front-end stack
 
 - HTML5
-- CSS3 responsivo
+- CSS3
 - Vanilla JavaScript
 - Plotly.js
-- `localStorage` para idioma e seleção de períodos
+- `localStorage`
 - GitHub Pages
 
-Não há etapa obrigatória de build com Node.js.
+Não há build obrigatório com Node.js.
 
-### Data engineering / automation
+### Data engineering stack
 
-- Python 3.12 no GitHub Actions
+- Python 3.12
 - pandas
 - NumPy
 - requests
-- JSON como camada de dados consumida pelo front-end
+- JSON como contrato entre pipeline e front-end
+- GitHub Actions para execução automatizada
 
-As dependências Python estão declaradas em [`requirements.txt`](requirements.txt).
+As dependências Python estão em [`requirements.txt`](requirements.txt).
 
 ---
 
-## Pipeline de dados
+## 10. Data Pipeline
 
-O pipeline principal está em [`scripts/update_data.py`](scripts/update_data.py).
+O processo principal está em [`scripts/update_data.py`](scripts/update_data.py).
 
-A fonte automatizada atual é o repositório:
+### Automated source
 
-- [`sumitrodatta/bball-reference-datasets`](https://github.com/sumitrodatta/bball-reference-datasets), estruturado a partir de dados do Basketball-Reference.
+A fonte automatizada atual é:
 
-O processo executa, em alto nível:
+[`sumitrodatta/bball-reference-datasets`](https://github.com/sumitrodatta/bball-reference-datasets)
+
+O conjunto é estruturado a partir de dados do Basketball-Reference.
+
+### High-level flow
 
 1. download das tabelas necessárias;
-2. filtragem para registros NBA;
-3. normalização das temporadas desde 1988-89;
-4. tratamento de jogadores trocados usando a linha agregada `2TM/3TM/...` quando disponível;
-5. merge de totais, advanced, shooting e play-by-play;
-6. cálculo de métricas derivadas reproduzíveis;
+2. seleção e normalização dos registros NBA;
+3. padronização das temporadas desde 1988-89;
+4. tratamento de jogadores que atuaram por múltiplas equipes;
+5. integração de dados tradicionais, advanced, shooting e PBP;
+6. cálculo das métricas derivadas reproduzíveis;
 7. agregação jogador × era;
-8. construção de equipe × temporada;
+8. construção equipe × temporada;
 9. construção das séries da liga;
-10. gravação dos JSONs consumidos pelo dashboard;
-11. geração dos metadados de atualização;
-12. execução da validação automática.
+10. geração dos JSONs publicados;
+11. atualização dos metadados;
+12. execução da matriz de QA;
+13. commit automático somente quando há alteração válida.
 
 ---
 
-## Arquivos de dados gerados
+## 11. Generated Data Contracts
 
-| Arquivo | Finalidade |
+| Arquivo | Responsabilidade |
 |---|---|
-| [`data/players.json`](data/players.json) | Agregados de jogadores por era e métricas tradicionais/avançadas/shooting/PBP |
+| [`data/players.json`](data/players.json) | Agregados de jogadores por era |
 | [`data/teams.json`](data/teams.json) | Estatísticas de equipes por temporada |
-| [`data/league.json`](data/league.json) | Série histórica da liga temporada a temporada |
-| [`data/era_summary.json`](data/era_summary.json) | Médias consolidadas dos três períodos |
-| [`data/meta.json`](data/meta.json) | Timestamp da atualização, temporada corrente e fonte |
-| [`data/qa_report.json`](data/qa_report.json) | Resultado da matriz de validação automática |
+| [`data/league.json`](data/league.json) | Série histórica da liga |
+| [`data/era_summary.json`](data/era_summary.json) | Resumo consolidado por período |
+| [`data/meta.json`](data/meta.json) | Timestamp, temporada corrente, fonte e regra de integridade |
+| [`data/qa_report.json`](data/qa_report.json) | Resultado da validação automática |
 
-O arquivo [`data/meta.json`](data/meta.json) é a referência recomendada para saber qual é a temporada mais recente presente no snapshot publicado.
+O front-end trata esses arquivos como contratos de dados publicados. Mudanças de schema devem ser coordenadas com a lógica de renderização e com os testes de validação.
 
 ---
 
-## Quality Assurance — QA
+## 12. Quality Assurance
 
-O projeto possui uma camada programática de validação em:
+### Data QA
+
+A validação programática é executada por:
 
 [`scripts/validate_dashboard.py`](scripts/validate_dashboard.py)
 
-Atualmente, a matriz cobre:
+O snapshot atualmente publicado registra:
 
-- **7 combinações de períodos**;
+```text
+Status: PASS
+Checks: 441
+Selection combinations: 7
+Critical errors: 0
+```
+
+A matriz cobre:
+
+- todas as combinações válidas de períodos;
 - métricas de liga;
 - rankings de jogadores;
 - rankings de equipes;
 - shooting/zones;
 - faltas;
 - PBP;
-- ranges numéricos esperados para percentuais e métricas críticas.
+- ranges válidos para percentuais e métricas críticas;
+- ausência histórica esperada.
 
-### Estado atual
+Indisponibilidades legítimas são registradas como **warnings**, não como valores fabricados.
 
-**441 checks automáticos — PASS — 0 erros.**
+### UI QA
 
-As indisponibilidades históricas esperadas são registradas como warnings, não preenchidas artificialmente.
+O projeto também possui uma camada de proteção de interface em [`dashboard-qa-v2.js`](dashboard-qa-v2.js), responsável por:
 
-> O QA programático valida disponibilidade, contratos de dados e ranges. Ele complementa, mas não substitui testes de regressão visual em múltiplos navegadores e resoluções.
+- remover placeholders `N/D` residuais antes de um redraw válido;
+- garantir que filtros chamem os renderizadores mais recentes após overrides de multi-período;
+- evitar estados em que tabela válida e mensagem de indisponibilidade apareçam simultaneamente;
+- fornecer um glossário técnico expandido;
+- preservar comportamento consistente após mudanças de idioma, período e métrica.
+
+> O QA programático reduz regressões de dados e lógica. Testes visuais em navegadores/resoluções diferentes continuam recomendados para mudanças relevantes de UI.
 
 ---
 
-## Atualização automática
+## 13. Glossary & Metric Documentation
+
+A aba **Acrônimos & Legendas** funciona como documentação estatística integrada ao produto.
+
+Ela cobre métricas tradicionais, avançadas, de equipes, shooting e PBP e apresenta, quando aplicável:
+
+- sigla;
+- nome completo em inglês;
+- significado e interpretação;
+- fórmula ou regra de leitura;
+- categoria;
+- observações sobre cobertura histórica.
+
+Exemplos incluem `PPG`, `RPG`, `APG`, `3P%`, `3PAr`, `TS%`, `eFG%`, `PER`, `WS`, `WS/48`, `BPM`, `OBPM`, `DBPM`, `VORP`, `ORtg`, `DRtg`, `Net Rating`, `SRS`, `Corner 3%`, `Shooting fouls drawn`, `Offensive fouls drawn` e `And-1`.
+
+---
+
+## 14. Automation & Deployment
 
 O workflow está em:
 
 [`.github/workflows/update-nba-data.yml`](.github/workflows/update-nba-data.yml)
 
-### Agenda
-
-O GitHub Actions executa automaticamente em:
+### Scheduled refresh
 
 ```cron
 17 12 11 2,8 *
 ```
 
-Isso corresponde a **11 de fevereiro e 11 de agosto, às 12:17 UTC**.
+Execução programada em:
+
+- **11 de fevereiro**;
+- **11 de agosto**;
+- às **12:17 UTC**.
 
 Também pode ser executado manualmente em:
 
 **Actions → Refresh NBA Analytics data → Run workflow**
 
-O workflow também roda quando arquivos do próprio pipeline/QA são modificados.
-
-### Fluxo do workflow
+### Workflow sequence
 
 ```text
-Checkout
-  ↓
+Checkout repository
+      ↓
 Python 3.12
-  ↓
+      ↓
 Install dependencies
-  ↓
-Download and rebuild NBA data
-  ↓
-Validate every dashboard filter and metric family
-  ↓
+      ↓
+Download / rebuild data
+      ↓
+Validate dashboard dataset
+      ↓
 Commit refreshed data if changed
-  ↓
-GitHub Pages republishes the site
+      ↓
+GitHub Pages deploy
 ```
 
-A execução é interrompida caso a validação encontre um erro crítico.
+Se a validação detectar erro crítico, o fluxo deve falhar antes da publicação do novo snapshot.
 
 ---
 
-## Estrutura do repositório
+## 15. Access Analytics
+
+O dashboard utiliza **GoatCounter** para registrar e exibir o total público de visitas.
+
+Arquivos relacionados:
+
+- [`analytics-config.js`](analytics-config.js)
+- [`analytics.js`](analytics.js)
+- [`analytics.css`](analytics.css)
+- [`ANALYTICS_SETUP.md`](ANALYTICS_SETUP.md)
+
+### Design principles
+
+- nenhuma API key ou token privado é armazenado no JavaScript público;
+- falha ou bloqueio do tracker não impede o carregamento do dashboard;
+- o contador público é carregado independentemente dos dados estatísticos da NBA;
+- analytics é tratado como funcionalidade auxiliar, não como dependência crítica.
+
+O valor exibido no site pode apresentar atraso em relação ao painel administrativo do provedor devido a cache do contador público.
+
+---
+
+## 16. Repository Structure
 
 ```text
 nba-analytics/
-├── index.html                     # estrutura da aplicação
-├── styles.css                     # tema principal TAP
-├── app.js                         # estado, i18n e renderização-base
-├── shooting-v2.css                # refinamentos de shooting/layout
-├── shooting-v2.js                 # gráficos, filtros e QA client-side
-├── period-multiselect.css         # UI do seletor multi-período
-├── period-multiselect.js          # agregação cross-era e multi-select
+├── index.html
+├── styles.css
+├── app.js
+│
+├── shooting-v2.css
+├── shooting-v2.js
+├── period-multiselect.css
+├── period-multiselect.js
+├── dashboard-qa-v2.js
+│
+├── analytics-config.js
+├── analytics.js
+├── analytics.css
+├── ANALYTICS_SETUP.md
 │
 ├── assets/
 │   └── tap-logo.jpg
@@ -361,8 +503,8 @@ nba-analytics/
 │   └── qa_report.json
 │
 ├── scripts/
-│   ├── update_data.py             # ETL / geração dos datasets
-│   └── validate_dashboard.py      # matriz automática de QA
+│   ├── update_data.py
+│   └── validate_dashboard.py
 │
 ├── .github/
 │   └── workflows/
@@ -375,16 +517,16 @@ nba-analytics/
 
 ---
 
-## Executar localmente
+## 17. Run Locally
 
-### 1. Clonar o repositório
+### Clone
 
 ```bash
 git clone https://github.com/thalesandradepereira/nba-analytics.git
 cd nba-analytics
 ```
 
-### 2. Criar um ambiente Python
+### Create Python environment
 
 macOS / Linux:
 
@@ -400,32 +542,34 @@ py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-### 3. Instalar as dependências
+### Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Atualizar os dados
+### Rebuild data
 
 ```bash
 python scripts/update_data.py
 ```
 
-Essa etapa requer conexão com a internet.
+> Esta etapa requer conexão com a internet.
 
-### 5. Executar o QA
+### Run QA
 
 ```bash
 python scripts/validate_dashboard.py
 ```
 
-O processo deve finalizar com `PASS` antes da publicação.
+A publicação de um novo snapshot deve ocorrer somente após `PASS`.
 
-### 6. Servir o dashboard localmente
+### Serve locally
+
+Na raiz do repositório:
 
 ```bash
-python -m http.server 8000
+python3 -m http.server 8000
 ```
 
 Abra:
@@ -434,115 +578,62 @@ Abra:
 http://localhost:8000
 ```
 
-> Use um servidor HTTP local. Abrir `index.html` diretamente via `file://` pode bloquear os `fetch()` dos arquivos JSON em alguns navegadores.
+Evite abrir `index.html` diretamente por `file://`, pois o navegador pode bloquear o carregamento dos arquivos JSON locais.
 
 ---
 
-## GitHub Pages
+## 18. Maintenance Checklist
 
-A versão pública é publicada a partir da branch `main`:
+Antes de uma alteração relevante em produção:
 
-**https://thalesandradepereira.github.io/nba-analytics/**
-
-Configuração do repositório:
-
-```text
-Settings
-  → Pages
-  → Build and deployment
-  → Deploy from a branch
-  → main
-  → / (root)
-```
-
----
-
-## Boas práticas para evolução do projeto
-
-Ao adicionar uma nova métrica ou filtro:
-
-1. confirmar a disponibilidade na fonte;
-2. definir claramente se é dado de fonte ou métrica derivada;
-3. documentar a fórmula quando derivada;
-4. preservar `null` quando o dado não existir;
-5. adicionar a métrica ao front-end;
-6. adicionar cobertura ao `validate_dashboard.py`;
-7. testar as **7 combinações de períodos**;
-8. testar PT-BR e EN-US;
-9. validar desktop e viewport reduzido;
-10. só então publicar no `main`.
+- [ ] confirmar que `data/meta.json` aponta para a temporada esperada;
+- [ ] executar `scripts/validate_dashboard.py`;
+- [ ] verificar `data/qa_report.json` e confirmar `PASS`;
+- [ ] testar os 3 períodos individualmente;
+- [ ] testar seleção de 2 períodos;
+- [ ] testar todos os períodos;
+- [ ] validar filtros de jogadores e equipes;
+- [ ] validar métricas com cobertura parcial (`Corner 3`, dunks, PBP);
+- [ ] alternar PT-BR ↔ EN-US;
+- [ ] verificar desktop e viewport móvel;
+- [ ] confirmar que o contador de visitas não interfere no carregamento do dashboard;
+- [ ] aguardar GitHub Pages concluir o deploy.
 
 ---
 
-## Roadmap sugerido
+## 19. Security & Privacy
 
-- testes E2E automatizados em navegador;
-- regressão visual por screenshots;
-- comparador direto jogador × jogador;
-- comparação de quintetos customizados;
-- filtros adicionais por posição e equipe;
-- análise de playoffs separada da temporada regular;
-- novos módulos de shot profile e evolução por posição;
-- cache/versionamento de snapshots históricos da base;
-- monitoramento automático de alterações de schema na fonte.
+Este é um site estático. O repositório não deve conter:
 
----
+- senhas;
+- tokens GitHub;
+- API keys privadas;
+- cookies de autenticação;
+- credenciais do provedor de analytics.
 
-## Fonte, atribuição e independência
-
-O pipeline consome dados estruturados do projeto `sumitrodatta/bball-reference-datasets`, derivados do Basketball-Reference.
-
-Este projeto é **independente** e não é afiliado, patrocinado ou endossado pela NBA, Basketball-Reference ou pelas franquias da liga. Nomes, marcas e demais propriedades intelectuais pertencem aos respectivos titulares.
-
-Antes de reutilizar dados de terceiros, consulte os termos aplicáveis às respectivas fontes.
-
-### Licença do código
-
-Este repositório **não possui atualmente um arquivo `LICENSE`**. Portanto, os termos de reutilização do código ainda não estão explicitamente concedidos pelo projeto. Caso seja necessário distribuir ou abrir o uso do código, recomenda-se adicionar uma licença apropriada em uma etapa futura.
+Identificadores públicos necessários ao funcionamento client-side podem permanecer no repositório, desde que não concedam acesso administrativo.
 
 ---
 
-## Autor
+## 20. Attribution & Disclaimer
 
-**Thales Andrade Pereira — TAP**
+Este é um **projeto independente de análise estatística**.
 
-Projeto desenvolvido como estudo aplicado de **NBA Analytics, engenharia de dados, visualização, automação e uso de IA no desenvolvimento de soluções analíticas**.
+- Não é um produto oficial da NBA.
+- Não representa ou substitui Basketball-Reference ou qualquer outro provedor de dados.
+- Marcas, nomes de equipes e jogadores pertencem aos respectivos titulares.
+- As análises derivadas e inferências de matchup refletem a metodologia documentada neste projeto.
 
----
-
-<details>
-<summary><strong>English summary</strong></summary>
-
-### NBA Analytics | by TAP
-
-NBA Analytics is an independent, bilingual **PT-BR / EN-US** historical and modern NBA dashboard covering seasons from **1988-89 through the latest season available in the automated source**.
-
-Key capabilities include:
-
-- league evolution and era comparison;
-- Top 30 player rankings;
-- player explorer;
-- shooting zones, Corner 3 and dunks;
-- fouls and play-by-play metrics;
-- team-season rankings;
-- **Best Team Forever** cross-era matchup analysis;
-- multi-period selection with cross-era player aggregation;
-- automated twice-yearly data refresh;
-- reproducible Python ETL;
-- automated QA across all seven period-selection combinations.
-
-The project follows a strict integrity rule: **missing historical values remain missing; no arbitrary statistical values are invented**.
-
-Live dashboard:
-
-**https://thalesandradepereira.github.io/nba-analytics/**
-
-</details>
+A fonte automatizada atualmente utilizada é [`sumitrodatta/bball-reference-datasets`](https://github.com/sumitrodatta/bball-reference-datasets), estruturada a partir de dados do Basketball-Reference.
 
 ---
 
 <div align="center">
 
-**Made by TAP**
+### Made by TAP
+
+**NBA Analytics — Historical Performance Intelligence**
+
+Engineering · Statistics · Data Visualization · Automation
 
 </div>
