@@ -1,40 +1,16 @@
-/* Shooting & Zones — executive layout */
+/* Shooting & Zones — executive layout + filter visibility QA */
 .shooting-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
 .shooting-kpi{background:linear-gradient(180deg,rgba(12,31,24,.96),rgba(8,22,17,.98));border:1px solid rgba(216,179,99,.13);border-radius:11px;padding:12px 14px;min-height:78px;display:flex;flex-direction:column;justify-content:center}
 .shooting-kpi-label{font-size:10px;line-height:1.35;color:var(--muted);text-transform:uppercase;letter-spacing:.045em}
 .shooting-kpi-value{font-size:23px;font-weight:800;line-height:1.12;margin-top:5px;color:#f4eedf}
-.shooting-grid{align-items:stretch}
-.shooting-primary{border-color:rgba(216,179,99,.16);background:radial-gradient(circle at 90% 0,rgba(216,179,99,.045),transparent 28%),linear-gradient(180deg,rgba(11,27,21,.99),rgba(8,21,17,.99))}
-.shooting-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:2px}
-.shooting-card-head h3{font-size:16px;margin-bottom:4px}
-.shooting-card-head .note{margin:0;max-width:920px}
-.shooting-main-chart{height:470px}
-.shooting-secondary-chart{height:390px}
-.shooting-leaders-card{padding-bottom:16px}
-.shooting-leaders{max-height:none;overflow:visible;margin-top:8px}
-.shooting-leaders table{min-width:640px}
-.empty-state{height:100%;min-height:260px;display:grid;place-items:center;text-align:center;color:var(--muted);border:1px dashed rgba(216,179,99,.16);border-radius:10px;padding:20px}
+.shooting-grid{align-items:stretch}.shooting-primary{border-color:rgba(216,179,99,.16);background:radial-gradient(circle at 90% 0,rgba(216,179,99,.045),transparent 28%),linear-gradient(180deg,rgba(11,27,21,.99),rgba(8,21,17,.99))}
+.shooting-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:2px}.shooting-card-head h3{font-size:16px;margin-bottom:4px}.shooting-card-head .note{margin:0;max-width:920px}
+.shooting-main-chart{height:470px}.shooting-secondary-chart{height:410px}.shooting-leaders-card{padding-bottom:16px}.shooting-leaders{max-height:none;overflow:visible;margin-top:8px}.shooting-leaders table{min-width:640px}
+.qa-empty,.empty-state{height:100%;min-height:260px;display:grid;place-items:center;text-align:center;color:var(--muted);border:1px dashed rgba(216,179,99,.18);border-radius:10px;padding:20px;background:rgba(7,20,15,.28)}.qa-empty.compact{min-height:90px}
 .brand-logo img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;display:block}
-
-/* v12: affected analytical panels get more usable plotting space. */
-#fouls .chart{height:440px}
-#fouls #foulLeaderTable{max-height:none;overflow:visible}
-#teams #teamChart{height:780px}
-#teams .tablewrap{max-height:none}
-#teams .card{overflow:visible}
-
-@media(max-width:1100px){
-  .shooting-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .shooting-main-chart{height:430px}
-  .shooting-secondary-chart{height:380px}
-  #fouls .chart{height:400px}
-  #teams #teamChart{height:720px}
-}
-@media(max-width:600px){
-  .shooting-kpis{grid-template-columns:1fr}
-  .shooting-main-chart,.shooting-secondary-chart{height:350px}
-  .shooting-kpi{min-height:68px}
-  .shooting-kpi-value{font-size:20px}
-  #fouls .chart{height:370px}
-  #teams #teamChart{height:680px}
-}
+/* Never clip Plotly tick labels or outside bar labels. */
+.js-plotly-plot,.js-plotly-plot .plot-container,.js-plotly-plot .svg-container{overflow:visible!important}.js-plotly-plot .main-svg{overflow:visible!important}.js-plotly-plot .xtick text,.js-plotly-plot .ytick text{font-variant-numeric:tabular-nums}
+#zoneShareChart,#cornerChart,#dunkTrend,#pfFtTrend,#pbpTrend,#teamChart,#playerRankChart,#leagueTrend{overflow:visible!important}
+#fouls .chart{height:455px}#fouls #foulLeaderTable{max-height:none;overflow:visible}#teams #teamChart{min-height:650px}#teams .tablewrap{max-height:none}#teams .card{overflow:visible}#players #playerRankChart{min-height:650px}#dunkLeaders,#foulLeaderTable,#teamTable,#playerRankTable{max-height:none}
+@media(max-width:1100px){.shooting-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.shooting-main-chart{height:440px}.shooting-secondary-chart{height:390px}#fouls .grid>.span6{grid-column:span 12!important}#fouls .chart{height:410px}#teams #teamChart{min-height:620px}}
+@media(max-width:600px){.shooting-kpis{grid-template-columns:1fr}.shooting-main-chart,.shooting-secondary-chart{height:360px}.shooting-kpi{min-height:68px}.shooting-kpi-value{font-size:20px}#fouls .chart{height:380px}#teams #teamChart{min-height:580px}}
