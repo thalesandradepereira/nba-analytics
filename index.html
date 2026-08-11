@@ -6,10 +6,10 @@
 <meta name="description" content="NBA Analytics | Historical & Modern NBA Statistical Dashboard by TAP">
 <title>NBA Analytics | by TAP</title>
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="shooting-v2.css?v=1">
+<link rel="stylesheet" href="shooting-v2.css?v=4">
 <script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script defer src="app.js"></script>
-<script defer src="shooting-v2.js?v=1"></script>
+<script defer src="shooting-v2.js?v=4"></script>
 </head>
 <body>
 <header class="hero">
@@ -81,13 +81,7 @@
 </section>
 
 <section id="shooting" class="tab shooting-tab">
-  <div class="section-title">
-    <div>
-      <h2 data-i18n="shooting_zones">Arremessos & Zonas</h2>
-      <p data-i18n="shot_note">Shot location e dunks dependem da cobertura histórica da fonte.</p>
-    </div>
-    <span class="pill warn">1996-97+</span>
-  </div>
+  <div class="section-title"><div><h2 data-i18n="shooting_zones">Arremessos & Zonas</h2><p data-i18n="shot_note">Shot location e dunks dependem da cobertura histórica da fonte.</p></div><span class="pill warn">1996-97+</span></div>
   <div id="shootingKpis" class="shooting-kpis"></div>
   <div class="grid shooting-grid mt">
     <div class="card span12 shooting-primary"><div class="shooting-card-head"><div><h3 data-i18n="shot_distribution">Distribuição por distância</h3><p class="note" data-i18n="shot_distribution_note">Participação de cada zona no total de tentativas de arremesso (FGA) dentro do período selecionado.</p></div></div><div id="zoneShareChart" class="chart shooting-main-chart"></div></div>
@@ -101,8 +95,20 @@
   <div class="section-title"><div><h2 data-i18n="fouls_title">Faltas, lances livres & PBP</h2><p data-i18n="pbp_note">Faltas pessoais e FT cobrem todo o recorte; categorias PBP começam mais tarde.</p></div></div>
   <div class="grid"><div class="card span6"><h3 data-i18n="pf_fta">PF e FTA por equipe/jogo</h3><div id="pfFtTrend" class="chart"></div></div><div class="card span6"><h3 data-i18n="contact_events">Eventos de contato — PBP</h3><div id="pbpTrend" class="chart"></div></div><div class="card span12"><h3 data-i18n="contact_leaders">Líderes em categorias de contato</h3><div id="foulLeaderTable" class="tablewrap"></div></div></div>
 </section>
-<section id="teams" class="tab"><div class="section-title"><div><h2 data-i18n="teams">Equipes</h2><p data-i18n="team_desc">Melhores temporadas dentro do período por métrica selecionada.</p></div></div><div class="card"><label><span data-i18n="team_metric">Métrica da equipe</span><select id="teamMetric"></select></label><div id="teamChart" class="chart tall"></div><div id="teamTable" class="tablewrap"></div></div></section>
-<section id="bestteam" class="tab"><div class="section-title"><div><h2>Best Team Forever</h2><p data-i18n="bt_sub">Qual seleção de era teria maior chance de vencer se todos jogassem hoje?</p></div><span class="pill derived" data-i18n="inference">Inferência analítica</span></div><div class="verdict"><div class="verdict-kicker" data-i18n="verdict_current">VEREDITO SOB REGRAS ATUAIS</div><h2>🥇 2010-11 → 2025-26</h2><p data-i18n="verdict_text">Favorita pelo conjunto de spacing, eficiência, criação, versatilidade defensiva e profundidade funcional. Esta conclusão é uma inferência de matchup baseada nos dados — não um resultado observado.</p></div><div class="podium grid"><div class="card span4 podium-card first"><div class="rank">🥇</div><h3>2010-11 → 2025-26</h3><p><b>Curry · Kawhi · LeBron · Durant · Jokić</b></p><p data-i18n="modern_reason">Maior compatibilidade com o jogo atual e cinco ameaças ofensivas simultâneas.</p></div><div class="card span4 podium-card"><div class="rank">🥈</div><h3>2000-01 → 2009-10</h3><p><b>Chris Paul · Kobe · LeBron · Dirk · Garnett</b></p><p data-i18n="middle_reason">Melhor ponte entre o basquete clássico e moderno.</p></div><div class="card span4 podium-card"><div class="rank">🥉</div><h3>1988-89 → 1999-00</h3><p><b>Magic · Jordan · Pippen · Barkley · Hakeem</b></p><p data-i18n="classic_reason">Maior poder físico/interior, com maior custo de adaptação ao spacing atual.</p></div></div><div class="grid mt"><div class="card span7"><h3 data-i18n="peak_metrics">Pico dos quintetos — indicadores</h3><div id="bestTeamTable" class="tablewrap"></div></div><div class="card span5"><h3 data-i18n="relative_eff">Eficiência relativa × impacto</h3><div id="bestTeamChart" class="chart"></div></div></div><div class="card mt"><h3 data-i18n="matchup_matrix">Matriz de vantagens</h3><div id="matchupMatrix" class="tablewrap"></div></div></section>
+
+<section id="teams" class="tab">
+  <div class="section-title"><div><h2 data-i18n="teams">Equipes</h2><p data-i18n="team_desc">Melhores temporadas dentro do período por métrica selecionada.</p></div></div>
+  <div class="card"><label><span data-i18n="team_metric">Métrica da equipe</span><select id="teamMetric"></select></label><div id="teamChart" class="chart tall"></div><div id="teamTable" class="tablewrap"></div></div>
+</section>
+
+<section id="bestteam" class="tab">
+  <div class="section-title"><div><h2>Best Team Forever</h2><p data-i18n="bt_sub">Qual seleção de era teria maior chance de vencer se todos jogassem hoje?</p></div><span class="pill derived" data-i18n="inference">Inferência analítica</span></div>
+  <div class="verdict"><div class="verdict-kicker" data-i18n="verdict_current">VEREDITO SOB REGRAS ATUAIS</div><h2>🥇 2010-11 → 2025-26</h2><p data-i18n="verdict_text">Favorita pelo conjunto de spacing, eficiência, criação, versatilidade defensiva e profundidade funcional. Esta conclusão é uma inferência de matchup baseada nos dados — não um resultado observado.</p></div>
+  <div class="podium grid"><div class="card span4 podium-card first"><div class="rank">🥇</div><h3>2010-11 → 2025-26</h3><p><b>Curry · Kawhi · LeBron · Durant · Jokić</b></p><p data-i18n="modern_reason">Maior compatibilidade com o jogo atual e cinco ameaças ofensivas simultâneas.</p></div><div class="card span4 podium-card"><div class="rank">🥈</div><h3>2000-01 → 2009-10</h3><p><b>Chris Paul · Kobe · LeBron · Dirk · Garnett</b></p><p data-i18n="middle_reason">Melhor ponte entre o basquete clássico e moderno.</p></div><div class="card span4 podium-card"><div class="rank">🥉</div><h3>1988-89 → 1999-00</h3><p><b>Magic · Jordan · Pippen · Barkley · Hakeem</b></p><p data-i18n="classic_reason">Maior poder físico/interior, com maior custo de adaptação ao spacing atual.</p></div></div>
+  <div class="grid mt"><div class="card span7"><h3 data-i18n="peak_metrics">Pico dos quintetos — indicadores</h3><div id="bestTeamTable" class="tablewrap"></div></div><div class="card span5"><h3 data-i18n="relative_eff">Eficiência relativa × impacto</h3><div id="bestTeamChart" class="chart"></div></div></div>
+  <div class="card mt"><h3 data-i18n="matchup_matrix">Matriz de vantagens</h3><div id="matchupMatrix" class="tablewrap"></div></div>
+</section>
+
 <section id="method" class="tab"><div class="section-title"><div><h2 data-i18n="methodology">Metodologia & Fontes</h2><p data-i18n="method_sub">Rastreabilidade, automação e limitações históricas.</p></div></div><div class="card prose" id="methodContent"></div></section>
 <section id="glossary" class="tab"><div class="section-title"><div><h2 data-i18n="glossary">Acrônimos & Legendas</h2><p data-i18n="gloss_sub">Glossário das métricas e termos utilizados.</p></div></div><div class="card"><label class="search"><span data-i18n="search">Pesquisar</span><input id="glossarySearch" type="search" placeholder="BPM, True Shooting, rebotes…"></label><div id="glossaryTable" class="tablewrap"></div></div></section>
 </main>
