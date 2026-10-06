@@ -14,8 +14,11 @@ externo estiver lento ou bloqueado no navegador.
 - o contador público do GoatCounter pode ficar em cache por até quatro horas;
 - o snapshot local só é alterado quando o número muda ou quando vence o heartbeat;
 - o heartbeat padrão é de 30 dias, abaixo do limite de 60 dias de inatividade para workflows agendados em repositórios públicos;
-- testes unitários rodam antes de cada atualização;
-- falha nas duas rotas de leitura faz o workflow falhar de forma explícita.
+- pull requests executam apenas testes unitários, com `contents: read` e sem acessar GoatCounter;
+- o job operacional de refresh recebe `contents: write` somente fora de PR e somente em `main`;
+- falha nas duas rotas de leitura faz o workflow falhar de forma explícita;
+- o cliente HTTP do contador usa apenas a biblioteca padrão do Python, reduzindo dependências no job;
+- Actions oficiais estão pinadas por SHA e comentadas com a versão correspondente.
 
 ## Configuração pública
 
