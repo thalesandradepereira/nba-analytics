@@ -54,6 +54,7 @@ jobs:
         run: python scripts/update_visitor_count.py
 
       - name: Commit visitor snapshot when changed or heartbeat is due
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           git config user.name "nba-analytics-bot"
