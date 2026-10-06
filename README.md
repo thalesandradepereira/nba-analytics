@@ -14,6 +14,7 @@ O projeto foi construído com foco em **integridade estatística, rastreabilidad
 
 [![Refresh NBA Analytics data](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/update-nba-data.yml/badge.svg)](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/update-nba-data.yml)
 [![Refresh Visitor Count](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/refresh-visitor-count.yml/badge.svg)](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/refresh-visitor-count.yml)
+[![PR Quality Gate](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/pr-quality-gate.yml/badge.svg)](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/pr-quality-gate.yml)
 
 </div>
 
@@ -416,6 +417,11 @@ Os workflows operacionais estão em:
 - [`.github/workflows/update-nba-data.yml`](.github/workflows/update-nba-data.yml)
 - [`.github/workflows/refresh-visitor-count.yml`](.github/workflows/refresh-visitor-count.yml)
 - [`.github/workflows/release.yml`](.github/workflows/release.yml)
+- [`.github/workflows/pr-quality-gate.yml`](.github/workflows/pr-quality-gate.yml)
+
+### Pull-request quality gate
+
+Todo PR direcionado à `main` executa o job `quality-gate` com permissão somente leitura. O gate compila os scripts Python, valida o snapshot publicado (441 checks no estado atual) e executa os testes de regressão do contador de visitantes. Esse check é a referência para a proteção da branch `main`.
 
 ### Scheduled refresh
 
@@ -544,6 +550,7 @@ nba-analytics/
 │
 ├── .github/
 │   └── workflows/
+│       ├── pr-quality-gate.yml
 │       ├── refresh-visitor-count.yml
 │       ├── release.yml
 │       └── update-nba-data.yml
