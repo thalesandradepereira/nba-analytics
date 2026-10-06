@@ -4,6 +4,13 @@ on:
   schedule:
     - cron: "23 */6 * * *"
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/update_visitor_count.py"
+      - "tests/test_update_visitor_count.py"
+      - ".github/workflows/refresh-visitor-count.yml"
+      - "analytics.js"
   push:
     branches: [main]
     paths:
