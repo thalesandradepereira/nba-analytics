@@ -10,13 +10,20 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: nba-versioned-release
+  cancel-in-progress: false
+
 jobs:
   release:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Read and validate version
         id: version
@@ -40,4 +47,7 @@ jobs:
             echo "Release $TAG already exists; nothing to do."
             exit 0
           fi
-          gh release create "$TAG"             --target "$GITHUB_SHA"             --title "NBA Analytics $TAG"             --generate-notes
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "NBA Analytics $TAG" \
+            --generate-notes

@@ -459,10 +459,12 @@ O contador de visitas roda a cada **6 horas** (`23 */6 * * *`). A atualização:
 
 - prefere a API autenticada quando `GOATCOUNTER_API_KEY` existe;
 - usa o endpoint público oficial `counter/TOTAL.json` como fallback;
-- executa testes unitários antes de atualizar o snapshot;
+- executa QA de pull request com token somente leitura e sem chamada externa ao GoatCounter;
+- só concede `contents: write` ao job de refresh executado na branch `main`;
 - grava `data/visitor_count.json` somente quando o total muda;
 - força um heartbeat de manutenção a cada **30 dias** se o total permanecer igual;
-- falha explicitamente se nenhuma fonte do GoatCounter puder ser lida.
+- falha explicitamente se nenhuma fonte do GoatCounter puder ser lida;
+- usa GitHub Actions oficiais pinadas por SHA para reduzir risco de supply chain.
 
 O heartbeat foi escolhido abaixo do limite de **60 dias de inatividade** que o GitHub aplica a workflows agendados em repositórios públicos.
 
@@ -495,7 +497,8 @@ Arquivos relacionados:
 - o snapshot prefere a API autenticada e usa o contador público oficial como fallback;
 - falha nas duas rotas de sincronização torna o workflow vermelho em vez de mascarar o problema;
 - falha ou bloqueio do tracker não impede o carregamento do dashboard;
-- analytics é tratado como funcionalidade auxiliar, não como dependência crítica.
+- analytics é tratado como funcionalidade auxiliar, não como dependência crítica;
+- PRs validam o código com permissão somente leitura; escrita no repositório fica restrita aos jobs operacionais em `main`.
 
 O valor público pode apresentar atraso de até algumas horas devido ao cache do provedor. O snapshot local é atualizado quando o total muda e, no máximo, recebe um heartbeat a cada 30 dias.
 
@@ -637,6 +640,7 @@ Antes de uma alteração relevante em produção:
 - [ ] confirmar que o contador de visitas não interfere no carregamento do dashboard;
 - [ ] confirmar que o workflow de visitor count não está mascarando ausência de credenciais/fonte;
 - [ ] confirmar que o heartbeat do snapshot permanece abaixo de 60 dias;
+- [ ] confirmar que PRs mantêm `contents: read` e que jobs de escrita só executam em `main`;
 - [ ] aguardar GitHub Pages concluir o deploy.
 
 ---

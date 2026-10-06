@@ -20,41 +20,57 @@ on:
       - "analytics.js"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: nba-visitor-count-refresh
+  group: nba-visitor-count-refresh-${{ github.event_name }}
   cancel-in-progress: false
 
 jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Run visitor-count unit tests
+        run: python -m unittest discover -s tests -p "test_update_visitor_count.py" -v
+
   refresh:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: qa
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
     env:
       GOATCOUNTER_API_KEY: ${{ secrets.GOATCOUNTER_API_KEY }}
       VISITOR_SNAPSHOT_HEARTBEAT_DAYS: "30"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-
-      - name: Install HTTP dependency
-        run: python -m pip install --disable-pip-version-check requests
-
-      - name: Run visitor-count unit tests
-        run: python -m unittest discover -s tests -p "test_update_visitor_count.py" -v
 
       - name: Refresh visitor snapshot
         run: python scripts/update_visitor_count.py
 
       - name: Commit visitor snapshot when changed or heartbeat is due
-        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           git config user.name "nba-analytics-bot"
