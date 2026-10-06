@@ -62,6 +62,7 @@ A aplicação é publicada por **GitHub Pages**, utiliza **Plotly.js** para visu
 | **Analytics de acesso** | GoatCounter |
 | **Refresh do contador** | 6 h + heartbeat de 30 dias |
 | **Release automation** | Versionado por `VERSION` + GitHub Actions |
+| **Proteção da main** | PR + `quality-gate`; automação via deploy key dedicado |
 
 A referência operacional para a temporada e timestamp efetivamente publicados é [`data/meta.json`](data/meta.json). O resultado detalhado da validação está em [`data/qa_report.json`](data/qa_report.json).
 
@@ -421,7 +422,7 @@ Os workflows operacionais estão em:
 
 ### Pull-request quality gate
 
-Todo PR direcionado à `main` executa o job `quality-gate` com permissão somente leitura. O gate compila os scripts Python, valida o snapshot publicado (441 checks no estado atual) e executa os testes de regressão do contador de visitantes. Esse check é a referência para a proteção da branch `main`.
+Todo PR direcionado à `main` executa o job `quality-gate` com permissão somente leitura. O gate compila os scripts Python, valida o snapshot publicado (441 checks no estado atual) e executa os testes de regressão do contador de visitantes. A `main` é protegida por rulesets: alterações humanas passam por PR + `quality-gate`; force-push e exclusão são bloqueados. Os dois refreshes operacionais usam um deploy key dedicado armazenado como Actions Secret para manter os commits automáticos sem conceder escrita ao `GITHUB_TOKEN`.
 
 ### Scheduled refresh
 
@@ -466,7 +467,7 @@ O contador de visitas roda a cada **6 horas** (`23 */6 * * *`). A atualização:
 - prefere a API autenticada quando `GOATCOUNTER_API_KEY` existe;
 - usa o endpoint público oficial `counter/TOTAL.json` como fallback;
 - executa QA de pull request com token somente leitura e sem chamada externa ao GoatCounter;
-- só concede `contents: write` ao job de refresh executado na branch `main`;
+- mantém o `GITHUB_TOKEN` somente leitura e usa um deploy key dedicado apenas quando existe mudança a publicar;
 - grava `data/visitor_count.json` somente quando o total muda;
 - força um heartbeat de manutenção a cada **30 dias** se o total permanecer igual;
 - falha explicitamente se nenhuma fonte do GoatCounter puder ser lida;
@@ -647,7 +648,8 @@ Antes de uma alteração relevante em produção:
 - [ ] confirmar que o contador de visitas não interfere no carregamento do dashboard;
 - [ ] confirmar que o workflow de visitor count não está mascarando ausência de credenciais/fonte;
 - [ ] confirmar que o heartbeat do snapshot permanece abaixo de 60 dias;
-- [ ] confirmar que PRs mantêm `contents: read` e que jobs de escrita só executam em `main`;
+- [ ] confirmar que PRs e jobs operacionais mantêm `GITHUB_TOKEN: contents: read`;
+- [ ] confirmar que o deploy key de automação permanece restrito a este repositório;
 - [ ] aguardar GitHub Pages concluir o deploy.
 
 ---
