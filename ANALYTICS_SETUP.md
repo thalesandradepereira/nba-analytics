@@ -15,7 +15,7 @@ externo estiver lento ou bloqueado no navegador.
 - o snapshot local só é alterado quando o número muda ou quando vence o heartbeat;
 - o heartbeat padrão é de 30 dias, abaixo do limite de 60 dias de inatividade para workflows agendados em repositórios públicos;
 - pull requests executam apenas testes unitários, com `contents: read` e sem acessar GoatCounter;
-- o job operacional de refresh recebe `contents: write` somente fora de PR e somente em `main`;
+- o job operacional mantém `GITHUB_TOKEN` em `contents: read` e usa o secret `TAP_AUTOMATION_SSH_KEY` somente quando há snapshot a publicar;
 - falha nas duas rotas de leitura faz o workflow falhar de forma explícita;
 - o cliente HTTP do contador usa apenas a biblioteca padrão do Python, reduzindo dependências no job;
 - Actions oficiais estão pinadas por SHA e comentadas com a versão correspondente.
@@ -63,3 +63,12 @@ python scripts/update_visitor_count.py
 
 O segundo comando requer acesso à internet e que o contador público esteja
 habilitado ou que `GOATCOUNTER_API_KEY` esteja configurado.
+
+
+## Proteção da branch main
+
+A branch `main` usa rulesets para exigir PR + `quality-gate` em alterações humanas e
+bloquear force-push/exclusão. O refresh automático não usa bypass humano nem PAT:
+ele autentica o `git push` com um deploy key dedicado ao repositório, cuja chave
+privada existe apenas no Actions Secret `TAP_AUTOMATION_SSH_KEY`. A chave de host
+Ed25519 do GitHub é pinada no workflow.
