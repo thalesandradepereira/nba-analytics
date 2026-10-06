@@ -33,8 +33,12 @@
       : null;
     if(source === 'goatcounter-api'){
       reach.title = isEnglish()
-        ? `GoatCounter total synchronized by GitHub Actions${when ? ` at ${when}` : ''}.`
-        : `Total do GoatCounter sincronizado pelo GitHub Actions${when ? ` em ${when}` : ''}.`;
+        ? `Authenticated GoatCounter total synchronized by GitHub Actions${when ? ` at ${when}` : ''}.`
+        : `Total autenticado do GoatCounter sincronizado pelo GitHub Actions${when ? ` em ${when}` : ''}.`;
+    }else if(source === 'goatcounter-public'){
+      reach.title = isEnglish()
+        ? `Public GoatCounter total synchronized by GitHub Actions${when ? ` at ${when}` : ''}; the provider may cache it for up to four hours.`
+        : `Total público do GoatCounter sincronizado pelo GitHub Actions${when ? ` em ${when}` : ''}; o provedor pode mantê-lo em cache por até quatro horas.`;
     }else{
       reach.title = isEnglish()
         ? 'GoatCounter public total. This fallback may be cached for up to four hours.'
@@ -64,7 +68,7 @@
       });
       if(!response.ok) throw new Error(`snapshot HTTP ${response.status}`);
       const payload = await response.json();
-      if(payload.source !== 'goatcounter-api' || payload.count == null) return false;
+      if(!['goatcounter-api','goatcounter-public'].includes(payload.source) || payload.count == null) return false;
       return showCounter(payload.count, payload.source, payload.updated_at_utc);
     }catch(err){
       console.warn('NBA Analytics: visitor snapshot unavailable.', err);

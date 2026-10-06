@@ -2,8 +2,15 @@ name: Refresh Visitor Count
 
 on:
   schedule:
-    - cron: "23 * * * *"
+    - cron: "23 */6 * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/update_visitor_count.py"
+      - "tests/test_update_visitor_count.py"
+      - ".github/workflows/refresh-visitor-count.yml"
+      - "analytics.js"
 
 permissions:
   contents: write
@@ -18,6 +25,7 @@ jobs:
     timeout-minutes: 10
     env:
       GOATCOUNTER_API_KEY: ${{ secrets.GOATCOUNTER_API_KEY }}
+      VISITOR_SNAPSHOT_HEARTBEAT_DAYS: "30"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,19 +40,22 @@ jobs:
       - name: Install HTTP dependency
         run: python -m pip install --disable-pip-version-check requests
 
+      - name: Run visitor-count unit tests
+        run: python -m unittest discover -s tests -p "test_update_visitor_count.py" -v
+
       - name: Refresh visitor snapshot
         run: python scripts/update_visitor_count.py
 
-      - name: Commit visitor snapshot when changed
+      - name: Commit visitor snapshot when changed or heartbeat is due
         shell: bash
         run: |
           git config user.name "nba-analytics-bot"
           git config user.email "actions@users.noreply.github.com"
           git add data/visitor_count.json
           if git diff --cached --quiet; then
-            echo "No visitor-count change to commit."
+            echo "No visitor-count change or heartbeat due."
             exit 0
           fi
-          git commit -m "chore(analytics): refresh visitor count"
+          git commit -m "chore(analytics): refresh visitor count [skip ci]"
           git pull --rebase origin main
           git push origin HEAD:main

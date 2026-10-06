@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - "scripts/**"
+      - "scripts/update_data.py"
+      - "scripts/validate_dashboard.py"
       - "requirements.txt"
       - ".github/workflows/update-nba-data.yml"
   schedule:

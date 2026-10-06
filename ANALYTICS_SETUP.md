@@ -1,36 +1,62 @@
 # Analytics / contador de acessos
 
-O projeto está preparado para usar **GoatCounter** no GitHub Pages.
+O projeto usa **GoatCounter** no GitHub Pages e mantém um snapshot local do total
+de visitas para que o dashboard continue responsivo mesmo quando o serviço
+externo estiver lento ou bloqueado no navegador.
 
-## O que já está integrado
+## Arquitetura atual
 
-- tracking de pageviews em produção;
-- contador público de acessos no dashboard;
-- atualização automática do rótulo PT-BR / EN-US;
-- ausência de API key ou segredo no front-end;
-- o tracker só é carregado no host configurado em `analytics-config.js`;
-- falha do serviço ou bloqueio por adblock não impede o dashboard de funcionar.
+- tracking de pageviews continua client-side pelo GoatCounter;
+- o workflow `.github/workflows/refresh-visitor-count.yml` roda a cada 6 horas;
+- se `GOATCOUNTER_API_KEY` estiver configurado, a API autenticada é preferida;
+- sem segredo, o workflow usa o endpoint público oficial `counter/TOTAL.json`;
+- o endpoint público exige habilitar **Allow adding visitor counts on your website**;
+- o contador público do GoatCounter pode ficar em cache por até quatro horas;
+- o snapshot local só é alterado quando o número muda ou quando vence o heartbeat;
+- o heartbeat padrão é de 30 dias, abaixo do limite de 60 dias de inatividade para workflows agendados em repositórios públicos;
+- testes unitários rodam antes de cada atualização;
+- falha nas duas rotas de leitura faz o workflow falhar de forma explícita.
 
-## Ativação
+## Configuração pública
 
-1. Crie um site no GoatCounter e escolha um `site code` / subdomínio.
-2. Em GoatCounter, habilite **Allow adding visitor counts on your website** para permitir o contador público.
-3. Edite `analytics-config.js` e informe apenas o código público:
+O código público do site permanece em `analytics-config.js`:
 
 ```js
 window.NBA_ANALYTICS_CONFIG = Object.freeze({
   provider: 'goatcounter',
-  goatcounterCode: 'SEU-CODIGO',
+  goatcounterCode: 'nba-analytics-tap',
   publicCounter: true,
   productionHosts: ['thalesandradepereira.github.io']
 });
 ```
 
-Exemplo: se o endereço do painel for `https://nba-tap.goatcounter.com`, o código é `nba-tap`.
+No GoatCounter, mantenha habilitado **Allow adding visitor counts on your website**.
 
-## Observações
+## Segredo opcional
 
-- O contador visível usa o total do site (`TOTAL`).
-- O valor público pode ficar em cache por algumas horas e não aumenta instantaneamente a cada reload.
-- `goatcounterCode` é um identificador público, não uma credencial secreta.
-- Nunca adicione API tokens, senhas ou outras credenciais em arquivos públicos do GitHub Pages.
+`GOATCOUNTER_API_KEY` é opcional. Quando configurado em **Settings → Secrets and
+variables → Actions**, o workflow usa a API autenticada. O segredo nunca deve ser
+gravado em JavaScript, README, logs ou arquivos publicados pelo GitHub Pages.
+
+## Política de atualização
+
+O arquivo `data/visitor_count.json` é versionado somente quando:
+
+1. o total de visitas muda; ou
+2. o último snapshot tem 30 dias ou mais.
+
+Isso evita commits horários artificiais e mantém uma atividade operacional
+periódica suficiente para reduzir o risco de desativação automática dos
+workflows agendados por inatividade do repositório.
+
+## QA
+
+Execute localmente:
+
+```bash
+python -m unittest discover -s tests -p "test_update_visitor_count.py" -v
+python scripts/update_visitor_count.py
+```
+
+O segundo comando requer acesso à internet e que o contador público esteja
+habilitado ou que `GOATCOUNTER_API_KEY` esteja configurado.

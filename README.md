@@ -13,6 +13,7 @@ O projeto foi construído com foco em **integridade estatística, rastreabilidad
 [**🌐 Live Dashboard**](https://thalesandradepereira.github.io/nba-analytics/) · [**⚙️ GitHub Actions**](https://github.com/thalesandradepereira/nba-analytics/actions) · [**✅ QA Report**](data/qa_report.json) · [**🕒 Data Metadata**](data/meta.json)
 
 [![Refresh NBA Analytics data](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/update-nba-data.yml/badge.svg)](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/update-nba-data.yml)
+[![Refresh Visitor Count](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/refresh-visitor-count.yml/badge.svg)](https://github.com/thalesandradepereira/nba-analytics/actions/workflows/refresh-visitor-count.yml)
 
 </div>
 
@@ -58,6 +59,8 @@ A aplicação é publicada por **GitHub Pages**, utiliza **Plotly.js** para visu
 | **Erros críticos no último QA** | 0 |
 | **Interface** | PT-BR / EN-US |
 | **Analytics de acesso** | GoatCounter |
+| **Refresh do contador** | 6 h + heartbeat de 30 dias |
+| **Release automation** | Versionado por `VERSION` + GitHub Actions |
 
 A referência operacional para a temporada e timestamp efetivamente publicados é [`data/meta.json`](data/meta.json). O resultado detalhado da validação está em [`data/qa_report.json`](data/qa_report.json).
 
@@ -408,9 +411,11 @@ Exemplos incluem `PPG`, `RPG`, `APG`, `3P%`, `3PAr`, `TS%`, `eFG%`, `PER`, `WS`,
 
 ## 14. Automation & Deployment
 
-O workflow está em:
+Os workflows operacionais estão em:
 
-[`.github/workflows/update-nba-data.yml`](.github/workflows/update-nba-data.yml)
+- [`.github/workflows/update-nba-data.yml`](.github/workflows/update-nba-data.yml)
+- [`.github/workflows/refresh-visitor-count.yml`](.github/workflows/refresh-visitor-count.yml)
+- [`.github/workflows/release.yml`](.github/workflows/release.yml)
 
 ### Scheduled refresh
 
@@ -448,6 +453,25 @@ GitHub Pages deploy
 
 Se a validação detectar erro crítico, o fluxo deve falhar antes da publicação do novo snapshot.
 
+### Visitor-count refresh and inactivity protection
+
+O contador de visitas roda a cada **6 horas** (`23 */6 * * *`). A atualização:
+
+- prefere a API autenticada quando `GOATCOUNTER_API_KEY` existe;
+- usa o endpoint público oficial `counter/TOTAL.json` como fallback;
+- executa testes unitários antes de atualizar o snapshot;
+- grava `data/visitor_count.json` somente quando o total muda;
+- força um heartbeat de manutenção a cada **30 dias** se o total permanecer igual;
+- falha explicitamente se nenhuma fonte do GoatCounter puder ser lida.
+
+O heartbeat foi escolhido abaixo do limite de **60 dias de inatividade** que o GitHub aplica a workflows agendados em repositórios públicos.
+
+### Release automation
+
+O arquivo `VERSION` controla o release. Quando ele muda na branch `main`, o
+workflow `release.yml` cria automaticamente a tag `v<versão>` e o GitHub
+Release correspondente, com release notes geradas pelo próprio GitHub.
+
 ---
 
 ## 15. Access Analytics
@@ -460,15 +484,20 @@ Arquivos relacionados:
 - [`analytics.js`](analytics.js)
 - [`analytics.css`](analytics.css)
 - [`ANALYTICS_SETUP.md`](ANALYTICS_SETUP.md)
+- [`scripts/update_visitor_count.py`](scripts/update_visitor_count.py)
+- [`tests/test_update_visitor_count.py`](tests/test_update_visitor_count.py)
+- [`.github/workflows/refresh-visitor-count.yml`](.github/workflows/refresh-visitor-count.yml)
 
 ### Design principles
 
 - nenhuma API key ou token privado é armazenado no JavaScript público;
+- `GOATCOUNTER_API_KEY` é opcional e permanece somente em GitHub Actions Secrets;
+- o snapshot prefere a API autenticada e usa o contador público oficial como fallback;
+- falha nas duas rotas de sincronização torna o workflow vermelho em vez de mascarar o problema;
 - falha ou bloqueio do tracker não impede o carregamento do dashboard;
-- o contador público é carregado independentemente dos dados estatísticos da NBA;
 - analytics é tratado como funcionalidade auxiliar, não como dependência crítica.
 
-O valor exibido no site pode apresentar atraso em relação ao painel administrativo do provedor devido a cache do contador público.
+O valor público pode apresentar atraso de até algumas horas devido ao cache do provedor. O snapshot local é atualizado quando o total muda e, no máximo, recebe um heartbeat a cada 30 dias.
 
 ---
 
@@ -504,12 +533,19 @@ nba-analytics/
 │
 ├── scripts/
 │   ├── update_data.py
+│   ├── update_visitor_count.py
 │   └── validate_dashboard.py
+│
+├── tests/
+│   └── test_update_visitor_count.py
 │
 ├── .github/
 │   └── workflows/
+│       ├── refresh-visitor-count.yml
+│       ├── release.yml
 │       └── update-nba-data.yml
 │
+├── VERSION
 ├── requirements.txt
 ├── .nojekyll
 └── README.md
@@ -560,9 +596,11 @@ python scripts/update_data.py
 
 ```bash
 python scripts/validate_dashboard.py
+python -m unittest discover -s tests -p "test_update_visitor_count.py" -v
 ```
 
-A publicação de um novo snapshot deve ocorrer somente após `PASS`.
+A publicação de um novo snapshot deve ocorrer somente após `PASS`, e o refresh
+do contador deve permanecer coberto pelos testes unitários.
 
 ### Serve locally
 
@@ -597,6 +635,8 @@ Antes de uma alteração relevante em produção:
 - [ ] alternar PT-BR ↔ EN-US;
 - [ ] verificar desktop e viewport móvel;
 - [ ] confirmar que o contador de visitas não interfere no carregamento do dashboard;
+- [ ] confirmar que o workflow de visitor count não está mascarando ausência de credenciais/fonte;
+- [ ] confirmar que o heartbeat do snapshot permanece abaixo de 60 dias;
 - [ ] aguardar GitHub Pages concluir o deploy.
 
 ---
